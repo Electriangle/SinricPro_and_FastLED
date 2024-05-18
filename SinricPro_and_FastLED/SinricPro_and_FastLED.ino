@@ -11,7 +11,7 @@
  * License: MIT License
  *      - Copyright (c) 2024 Electriangle
  *
- * Release Date: 5/7/2024
+ * Release Date: 5/18/2024
 */
 
 /************************************************************/
@@ -93,23 +93,6 @@ bool onSetMode(const String& deviceId, const String& instance, String &mode) {
   Serial.printf("[Device: %s]: Modesetting for \"%s\" set to mode %s\r\n", deviceId.c_str(), instance.c_str(), mode.c_str());
   globalModes[instance] = mode;
 
-  // Modes
-  // The following modes are provided as examples. Adjust or add your own modes here in the format below.
-  //    - Enter the "Mode" with the same name of the mode you entered in SinricPro.
-  //    - Enter the functionCall(); for the function you would like to activate.
-  // FORMAT EXAMPLE:   if (globalModeState == "Mode") { functionCall(); }
-  if (globalPowerState) {
-    if (mode == "Solid") { AllOn(0, 0, 255); }
-    if (mode == "Twinkle") { TwinklePixels(random(256), 255, 20, 50, 50); }
-    if (mode == "ShootingStar") { shootingStarAnimation(255, 255, 255, random(10, 60), random(5, 40), random(2000, 8000), 1); }
-    if (mode == "RainbowCycle") { rainbowCycle(20); }
-    if (mode == "Fade") { fadeAnimation(255, 255, 255); }
-  }
-  else {
-    FastLED.clear();
-    FastLED.show();
-  }
-
   return true;
 }
 
@@ -169,8 +152,31 @@ void setup() {
   Serial.begin(BAUD_RATE);
   setupWiFi();
   setupSinricPro();
+
+  pinMode(LED_PIN, OUTPUT);
+  FastLED.addLeds<WS2812B, LED_PIN, GRB>(leds, NUM_LEDS);
+  FastLED.setMaxPowerInVoltsAndMilliamps(5, 1000);
+  FastLED.clear();
+  FastLED.show();
 }
 
 void loop() {
   SinricPro.handle();
+
+  // Modes
+  // The following modes are provided as examples. Adjust or add your own modes here in the format below.
+  //    - Enter the "Mode" with the same name of the mode you entered in SinricPro.
+  //    - Enter the functionCall(); for the function you would like to activate.
+  // FORMAT EXAMPLE:   if (globalModes["modeInstance1"] == "Mode") { functionCall(); }
+  if (globalPowerState) {
+    if (globalModes["modeInstance1"] == "Solid") { AllOn(0, 0, 255); }
+    if (globalModes["modeInstance1"] == "Twinkle") { TwinklePixels(random(256), 255, 20, 50, 50); }
+    if (globalModes["modeInstance1"] == "ShootingStar") { shootingStarAnimation(255, 255, 255, random(10, 60), random(5, 40), random(2000, 8000), 1); }
+    if (globalModes["modeInstance1"] == "RainbowCycle") { rainbowCycle(20); }
+    if (globalModes["modeInstance1"] == "Fade") { fadeAnimation(255, 255, 255); }
+  }
+  else {
+    FastLED.clear();
+    FastLED.show();
+  }
 }
